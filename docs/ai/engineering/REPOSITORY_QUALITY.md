@@ -1,11 +1,38 @@
 # Repository Quality Contract
 
+Terminology used below: application programming interface (API), continuous
+integration (CI), Forsyth–Edwards Notation (FEN), Hypertext Transfer Protocol
+(HTTP), Portable Game Notation (PGN), software bill of materials (SBOM), and
+time to live (TTL).
+
+## Library-first gate
+
+Every code change begins with a dependency survey. Before custom code is
+approved, its design note records:
+
+1. the capability being solved;
+2. maintained libraries and standards evaluated;
+3. license compatibility and transitive-license risk;
+4. release activity, maintainer depth, security policy, and known advisories;
+5. bundle or runtime cost and supported platforms;
+6. whether the public programming interface can be isolated behind an adapter;
+7. the exact unmet requirement, if custom code remains necessary.
+
+Prefer a small adapter around a proven library. Prefer a complete, consistently
+supported platform standard where one exists. Custom implementation requires
+an Architecture Decision Record and tests derived from the relevant standard
+or upstream conformance suite. Review rejects code that skips this gate.
+
+Dependencies are pinned with lockfiles, checked for known vulnerabilities and
+license changes, updated regularly, and kept replaceable through narrow
+adapters. Releases include generated dependency inventories and notices.
+
 ## Intended layout
 
 ```text
 apps/
   web/             TypeScript browser application
-  server/          selected Rust or Go API/WebSocket service
+  server/          selected backend application and WebSocket service
   engine-worker/   Stockfish process adapter and admission control
 packages/
   protocol/        canonical schema and cross-language fixtures
@@ -17,7 +44,7 @@ deploy/
 tests/
   e2e/             real-browser multi-user tests
   chaos/           Toxiproxy and container-failure scenarios
-  security/        ZAP/Nuclei policies and capability probes
+  private/         locally ignored operator validation material
 docs/
 ```
 
@@ -42,9 +69,12 @@ Dependency-boundary tooling is selected for the winning backend and
 dependency-cruiser is used for TypeScript. Knip rejects unused frontend exports
 and dependencies.
 
-## Required checks
+## Merge-blocking checks
 
-Every change runs the relevant subset; the protected main branch requires all:
+Every pull request runs the applicable checks below. Required checks fail on
+warnings, skipped required tests, threshold misses, scanner findings above the
+documented severity limit, or missing evidence. A pull request cannot merge
+until every applicable check succeeds:
 
 1. deterministic formatting and linting with warnings as errors;
 2. dependency-boundary and unused-code checks;
@@ -57,13 +87,15 @@ Every change runs the relevant subset; the protected main branch requires all:
 9. fuzz targets for protocol, FEN, PGN, and command state machines;
 10. coverage thresholds on changed code and mutation testing for chess/clock
     invariants;
-11. dependency, license, secret, SBOM, and container scans;
-12. Compose validation and image smoke tests;
+11. dependency, license, and private release-review gates;
+12. Docker Compose and rendered Kubernetes validation plus image smoke tests;
 13. documentation-link and architecture-consistency checks.
 
-Rust additionally uses `cargo fmt`, Clippy, locked builds, `cargo deny`, nextest,
-Miri where supported, and sanitizer/fuzz jobs. Go additionally uses `gofmt`,
-`go vet`, staticcheck, `go test -race`, fuzzing, and vulnerability checks.
+Language-specific checks are selected with the backend. Go candidates use
+`gofmt`, `go vet`, staticcheck, `go test -race`, and fuzzing. TypeScript
+candidates use deterministic formatting, strict compiler
+settings, linting, dependency-boundary checks, unused-code checks, and
+property/fuzz tests.
 
 ## Test truthfulness
 
@@ -76,6 +108,13 @@ Miri where supported, and sanitizer/fuzz jobs. Go additionally uses `gofmt`,
 
 ## Review rules
 
+- Every feature, fix, dependency change, and unrelated cleanup has a ticket and
+  follows `TICKET_BRANCH_WORKFLOW.md`.
+- Work is committed only to its `test/<ticket>` branch before review. It enters
+  `dev` only through an approved GitHub pull request.
+- The pull request includes the complete diff, test evidence, dependency
+  decisions, risks, and rollback notes; a prose summary is not a substitute for
+  reviewing changed files.
 - Changes cite the task and acceptance criterion they satisfy.
 - Protocol/state changes include compatibility and rollback notes.
 - Dependencies require a stated purpose, maintained upstream, acceptable
@@ -83,6 +122,9 @@ Miri where supported, and sanitizer/fuzz jobs. Go additionally uses `gofmt`,
 - Image and lockfile upgrades are isolated where practical.
 - Merged commits remain buildable; temporary spike code is deleted after the
   backend decision.
-- Exceptions to a gate are time-bounded, documented, and cannot waive chess,
-  privacy, capability, or state-consistency tests.
+- Exceptions require their own reviewed policy change before the affected pull
+  request. Chess, privacy, capability, state-consistency, secret scanning, and
+  branch-protection checks cannot be waived.
 
+Advisory reports may provide additional context, but no tool designated as a
+quality gate may use a warning-only or continue-on-error configuration.

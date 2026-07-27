@@ -1,8 +1,12 @@
 # Privacy and Room Identity
 
+Terminology used below: Content Security Policy (CSP), Forsyth–Edwards Notation
+(FEN), identifier (ID), OpenID Connect (OIDC), Portable Game Notation (PGN),
+time to live (TTL), user interface (UI), and uniform resource locator (URL).
+
 ## No account system
 
-KnightShift stores no username, password, password hash, email address, phone
+KnightOwl stores no username, password, password hash, email address, phone
 number, OAuth/OIDC subject, recovery secret, public profile, durable player ID,
 friend graph, or server-side game history.
 
@@ -17,6 +21,12 @@ A random URL capability grants only one room role: host, white, black, or
 spectator. Tokens contain at least 128 bits of cryptographic randomness. The
 server stores only keyed hashes, compares in constant time, never logs tokens,
 and expires them with the room.
+
+Rooms and all role links are created only through the loopback operator
+surface. The Cloudflare-exposed guest surface can redeem an existing capability
+but has no room-creation or invite-creation route. Possession of a host
+capability authorizes control of that existing room, not creation of another
+room.
 
 Capabilities are bearer secrets. The UI warns participants not to repost them.
 The host can revoke unused invites and spectator access. Referrer policy,
@@ -46,10 +56,17 @@ the actual deployment rather than promise legal immunity.
 
 ## Browser-local data
 
-PGNs, analysis, lesson progress, puzzle schedules, and preferences may be stored
-in IndexedDB only after an explicit local-storage explanation. They remain on
-that browser, can be exported, and have a one-action clear function. The app
-does not upload them for synchronization.
+Portable Game Notation records, analysis, drill progress, puzzle schedules,
+and preferences may be stored in Indexed Database storage only after an
+explicit local-storage explanation. They remain on that browser, can be
+exported, and have a one-action clear function. The app does not upload them
+for synchronization.
+
+User-imported animation packs follow the same boundary. Their manifests and
+media remain in browser Indexed Database storage, are never uploaded or
+requested by a room peer, and are included only when that person explicitly
+exports the pack. Clearing local data removes them and revokes active local
+object URLs.
 
 ## Social-data minimization
 
@@ -63,7 +80,5 @@ local; the host can disable reactions. This is the primary moderation design.
   assert none occur in logs, metrics, traces, or error pages.
 - TTL tests prove room records and capability hashes disappear.
 - Browser tests prove local export and deletion.
-- Security tests try capability guessing, leakage through referrers/errors,
-  privilege swapping, replay, and revoked-link use.
 - The deployment audit proves internal dashboards and data ports are not
   externally reachable.

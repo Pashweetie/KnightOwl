@@ -1,8 +1,11 @@
 # Minimal Game-State Protocol
 
+Terminology used below: Portable Game Notation (PGN) and user interface (UI).
+BLAKE3 is a proper algorithm name.
+
 ## Constraint
 
-KnightShift is for invited friends and does not need accounts, public ratings,
+KnightOwl is for invited friends and does not need accounts, public ratings,
 cheat detection, or a permanent server-side game archive. The browser owns the
 board presentation, legal-move hints, analysis UI, and downloaded PGN.
 
@@ -58,4 +61,3 @@ uploaded.
 - Deliberately altered client hashes trigger resynchronization.
 - Valkey loss fails closed and never creates two accepted histories.
 - Room, capability hash, labels, and finished state actually expire.
-

@@ -1,4 +1,8 @@
-# XMage Pseudonymous User Model
+# Pseudonymous Identity Research
+
+Terminology used below: identifier (ID), Internet Protocol (IP), Secure Hash
+Algorithm 256-bit (SHA-256), time to live (TTL), and universally unique
+identifier (UUID). H2 is the proper name of the database product.
 
 ## Research basis
 
@@ -15,7 +19,7 @@ Inspected the official `magefree/mage` repository at commit
 
 Official repository: <https://github.com/magefree/mage>
 
-## What XMage actually does
+## XMage findings
 
 XMage has two server-configured modes rather than one pseudonymous account
 system.
@@ -55,7 +59,7 @@ When authentication is enabled, XMage registers:
 The current source uses Apache Shiro SHA-256 hashing with a random salt and
 1,024 iterations, persisted through ORMLite in an H2 database. Registration
 generates a password and sends it to the supplied email. This is a conventional
-first-party credential/contact database and does not meet KnightShift's
+first-party credential/contact database and does not meet KnightOwl's
 requirements.
 
 ### Persistent statistics
@@ -78,9 +82,9 @@ The active `User` contains host, name, UUID, session IDs, activity timestamps,
 client version, tables/games, and optional user data. Administrative user views
 include host and session information, and connection logs include the chosen
 name. That may be reasonable for a public game server, but it is more
-operational identity data than KnightShift intends to retain.
+operational identity data than KnightOwl intends to retain.
 
-## Lessons to adopt
+## General design findings
 
 - Joining should require no registration ceremony.
 - A short room-local display name is enough for human recognition.
@@ -91,7 +95,7 @@ operational identity data than KnightShift intends to retain.
   handling.
 - Server configuration should make the identity/retention mode obvious.
 
-## Lessons not to copy
+## Rejected patterns
 
 - Do not use source host/IP as anonymous identity or reconnect authority.
 - Do not let a display name itself grant an existing seat.
@@ -101,9 +105,9 @@ operational identity data than KnightShift intends to retain.
   unless strictly required and redacted.
 - Do not log room labels as routine connection identifiers.
 
-## KnightShift adaptation
+## Independent KnightOwl model
 
-KnightShift keeps XMage's low-friction experience but uses stronger separation:
+KnightOwl uses an independently specified capability model:
 
 1. An invite capability grants permission to claim a room role.
 2. Claiming creates a random internal participant ID and rotating reconnect
@@ -114,6 +118,7 @@ KnightShift keeps XMage's low-friction experience but uses stronger separation:
    or rating after the room TTL.
 5. The browser may keep PGNs and local statistics after clear disclosure.
 
-This avoids name squatting as an authentication mechanism, survives ordinary
-IP changes, and does not create a hidden global profile.
-
+XMage is one research input, not a protocol dependency or implementation
+template. The resulting model avoids name squatting as an authentication
+mechanism, survives ordinary IP changes, and does not create a hidden global
+profile.

@@ -1,4 +1,7 @@
-# Self-Hosted Database Scale Options
+# Future Database Scale Options
+
+Terminology used below: high availability (HA), Structured Query Language
+(SQL), and time to live (TTL).
 
 This is a future trigger matrix, not a list of services to install.
 
@@ -29,4 +32,3 @@ finish_and_expire
 
 It is not a generic key-value abstraction and does not promise transparent
 replacement of incompatible consistency models.
-

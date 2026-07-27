@@ -1,8 +1,12 @@
 # Data Platform
 
+Terminology used below: append-only file (AOF), Cassandra Query Language (CQL),
+Internet Protocol (IP), personal computer (PC), Portable Game Notation (PGN),
+Structured Query Language (SQL), time to live (TTL), and user interface (UI).
+
 ## Initial deployment: Valkey only
 
-KnightShift has no SQL service in its initial deployment. Valkey is the live
+KnightOwl has no SQL service in its initial deployment. Valkey is the live
 state database, not merely a cache. It supplies:
 
 - atomic functions/transactions for game version changes;
@@ -81,4 +85,3 @@ appropriate there, but ClickHouse is not installed in advance.
 
 TTL behavior is integration-tested by observing deletion, not inferred from
 configuration.
-

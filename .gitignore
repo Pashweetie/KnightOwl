@@ -4,3 +4,5 @@ dist
 coverage
 *.log
 
+# Private operator security procedures and detailed adversarial test cases.
+docs/ai/engineering/CHAOS_AND_SECURITY_TESTING.md

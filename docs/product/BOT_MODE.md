@@ -1,40 +1,63 @@
-# Bot Opponent and Coach Specification
+# Bot Mode
 
-## 1. Product modes
+Terminology used below: application programming interface (API), frequently
+asked questions (FAQ), Efficiently Updatable Neural Network (NNUE), and
+Principal Variation Search (PVS).
 
-### Play a bot
+## 1. Experience
 
-An unrated game against a named engine profile. The profile is clearly labeled
-as a computer and defines:
+Bot Mode is an unrated game against a named engine profile. Teaching assistance
+is enabled by default. The profile is clearly labeled as a computer and
+defines:
 
 - target strength range;
 - time budget and deliberate response delay;
 - opening repertoire;
 - engine skill and error distribution;
 - optional style biases that are measured rather than described fictionally;
-- whether hints are enabled.
+- hint behavior.
 
-### Coach game
+Hints, explanations, candidate comparison, speech, and educational search-tree
+generation remain independent implementation functions so each can be tested,
+cancelled, and recovered separately.
 
-An unrated bot game with teaching assistance:
+Every Bot Mode game provides:
 
 - before a move: optional hint ladder;
 - after the user's move: immediate or delayed feedback setting;
 - after the bot move: explanation of the bot's plan;
 - at any time: candidate-move comparison and shallow educational search tree;
-- after the game: full review and linked learning recommendations.
+- after the game: full review and linked learning recommendations;
+- optional local speech reads explanatory feedback through the browser speech
+  synthesis facility, with mute, rate, and voice controls.
 
-Coach assistance is never available in rated or active human games.
+Bot Mode assistance is never available in an active human game.
+
+### Undo and redo
+
+Bot Mode displays labelled Undo and Redo buttons beside the move list. Undo
+returns to the previous human decision point by removing the last human move
+and the bot reply together. If the bot reply is still pending, Undo removes the
+human move and cancels that engine request.
+
+Repeated Undo walks backward through human decision points. Redo restores the
+exact recorded moves until the user makes a different move, which clears the
+redo branch. Either action cancels obsolete engine, hint, and explanation jobs
+and restores the board, clocks, move list, evaluation, candidate lines,
+explanation evidence, and educational minimax view to the selected position.
+
+Undo and Redo never appear in human-versus-human games. They operate on locally
+retained bot-game history and do not require a durable player account.
 
 ## 2. What “min-max breakdown” means
 
 Modern Stockfish is not a plain textbook minimax implementation. It uses
 alpha-beta Principal Variation Search, extensive pruning/reductions, a
 transposition table, quiescence search, and NNUE position evaluation. Therefore
-KnightShift will not display a fabricated complete tree or pretend every
+KnightOwl will not display a fabricated complete tree or pretend every
 discarded branch was fully evaluated.
 
-The coach provides two related views:
+Bot Mode provides two related analysis views:
 
 ### Engine decision view
 
@@ -53,9 +76,9 @@ For the actual Stockfish decision:
 
 ### Educational minimax view
 
-For explanation, KnightShift may run a separate bounded search:
+For explanation, KnightOwl may run a separate bounded search:
 
-- user-selectable two to four plies;
+- player-selectable two to four plies;
 - top configurable legal moves per node;
 - maximize/minimize layers visibly distinguished;
 - leaf position score and explanation features;
@@ -71,7 +94,7 @@ It cannot contain illustrative fake branches in a live analysis result.
 ## 3. Human-readable explanation
 
 Because current Stockfish uses NNUE, its final score does not provide a clean
-handcrafted “+0.3 king safety, +0.2 space” decomposition. KnightShift keeps
+handcrafted “+0.3 king safety, +0.2 space” decomposition. KnightOwl keeps
 engine truth separate from explanation.
 
 The explanation pipeline analyzes the current position and candidate lines for
@@ -129,7 +152,7 @@ Persist:
 - all game commands and clocks;
 - hint requests and levels;
 - candidate sets and engine provenance used for feedback;
-- user feedback on explanation usefulness;
+- optional browser-local feedback on explanation usefulness;
 - final review.
 
 Engine outputs are cached by position, engine digest, options, and budget.
@@ -138,7 +161,7 @@ Cache entries are never reused across mismatched provenance.
 ## 7. Acceptance gates
 
 - bot games obey the same authoritative rules and clocks as human games;
-- no coach endpoint serves an active human-game participant;
+- no Bot Mode assistance endpoint serves an active human-game participant;
 - candidate moves and PVs reproduce with the recorded engine build/options
   within documented nondeterminism;
 - every displayed educational-tree branch is legal and its propagated value is
@@ -148,7 +171,10 @@ Cache entries are never reused across mismatched provenance.
 - hint levels reveal only their promised information;
 - skill profiles pass calibration bounds;
 - engine timeout/crash cannot affect live human games;
-- keyboard and screen-reader users can navigate candidate lines and tree levels.
+- Undo and Redo restore a consistent decision point and stale engine results
+  cannot overwrite the restored position;
+- candidate lines and tree levels have keyboard navigation and structured text;
+  specialized screen-reader chess narration remains an optional enhancement.
 
 ## 8. Primary engine references
 
@@ -158,4 +184,3 @@ Cache entries are never reused across mismatched provenance.
   https://official-stockfish.github.io/docs/stockfish-wiki/Terminology.html
 - Stockfish FAQ (evaluation, MultiPV, skill):
   https://official-stockfish.github.io/docs/stockfish-wiki/Stockfish-FAQ.html
-
