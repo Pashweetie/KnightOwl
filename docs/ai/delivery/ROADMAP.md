@@ -47,9 +47,9 @@ placeholder controls, invented users/statistics, or fake service integrations.
 - [x] Select GPL-3-or-later licensing.
 - [x] Select scheduled-round private Swiss as the required tournament format;
   exclude continuous arena tournaments from the initial release.
-- [ ] Create a ticket and `test/<ticket>` branch for a small Go vertical slice
-  proving readability, library boundaries, testing, debugging, deployment, and
-  ten-user sanity behavior; submit it as a pull request into `dev`.
+- [ ] Approve the ordered Go server implementation tickets in
+  `docs/ai/delivery/GO_SERVER_IMPLEMENTATION.md`; do not create a disposable
+  proof-of-concept server.
 - [ ] Review the final architecture documents for contradictions.
 - [ ] Obtain explicit user sign-off on product scope, license, dependencies,
   architecture, difficult-feature disclosures, and implementation sequence.
