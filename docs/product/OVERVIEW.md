@@ -1,16 +1,18 @@
-# KnightShift Product Contract
+# Product Overview
+
+Terminology used below: application programming interface (API), Hypertext
+Transfer Protocol (HTTP), and personal computer (PC).
 
 ## Objective
 
-KnightShift is a self-hostable, production-quality chess room for invited
+KnightOwl is a self-hostable, production-quality chess room for invited
 friends. It provides capability-link multiplayer, casual live chess, local game
-history, computer-assisted post-game review, a coaching bot, optional original
-learning content, and ephemeral room tournaments without collecting account or
-contact identity.
+history, computer-assisted post-game review, Bot Mode with built-in teaching
+assistance, optional original puzzles and drills, and ephemeral room
+tournaments without collecting account or contact identity.
 
-“Feature parity” means comparable user capabilities. It does not mean copying
-Chess.com branding, source code, lesson text, puzzle collections, visual
-assets, engine labels, rating data, or other proprietary material.
+“Feature parity” means comparable user capabilities implemented with
+KnightOwl-owned or appropriately licensed software, content, data, and assets.
 
 ## Non-negotiable product rules
 
@@ -27,7 +29,7 @@ assets, engine labels, rating data, or other proprietary material.
    resource controls, and a permanent named tunnel.
 6. Premium-equivalent features are available without an artificial paid tier.
    Operating costs and optional donations may be documented separately.
-7. KnightShift stores no login credentials, contact identity, public profile,
+7. KnightOwl stores no login credentials, contact identity, public profile,
    advertising identifier, or hidden durable player profile. Purpose-limited
    operational/security telemetry follows the documented retention policy.
 
@@ -38,24 +40,46 @@ assets, engine labels, rating data, or other proprietary material.
 - Casual invite-room games.
 - Bullet, blitz, rapid, and classical time controls.
 - Fischer increment and Bronstein delay.
+
+## Friends-only interaction
+
+There is no public directory, public profile, follower system, direct message,
+forum, club, public chat, moderation queue, cheating review, or identity-linked
+sanction system.
+
+The host can create and revoke invitations, choose room settings, assign
+colors, remove a participant before play, disable spectators or reactions, end
+the room, and export the game. Players can use room-local labels, ready up,
+play, resign, offer or answer a draw, request a rematch, mute reactions,
+reconnect, and export the game.
+
+Communication uses a fixed set of reaction events. Each participant may
+customize an event's local animation and sound, but cannot transmit custom
+text, images, or media through KnightOwl.
+
+The operator has no public room list. Room state, labels, reaction events, and
+operational buckets expire. Runbooks cover service outages, resource pressure,
+upgrade, rollback, and credential loss.
 - Draw by agreement, stalemate, insufficient material, fivefold repetition,
   seventy-five-move automatic draw, claimable threefold repetition, and
   claimable fifty-move draw, according to the supported rules library.
 - Resignation, abandonment, timeout, and authorized administrative termination.
+- A live game and its clocks start only when White's first legal move is
+  accepted; waiting in a joined room consumes no clock.
 
 ## Architecture
 
 The deployable system consists of:
 
 - A React/TypeScript web client.
-- A Rust or Go HTTP and WebSocket API selected through the documented spike.
+- A Go server-authoritative Hypertext Transfer Protocol and WebSocket service.
 - Valkey for expiring room state, presence, rate limits, and job coordination.
 - Background workers for analysis and maintenance.
 - Stockfish workers isolated from the API process.
-- Traefik for local health-aware load balancing across app containers.
+- K3s-provided Traefik for production ingress and service routing.
 - Cloudflare Tunnel as outbound-only ingress.
-- Docker Compose for a single-machine installation, with clean seams for later
-  multi-host deployment.
+- Docker Compose for local development and single-node K3s for production, with
+  clean seams for later multi-host deployment.
 
 The API remains stateless except for active socket connections. Accepted game
 events are atomically appended to an expiring Valkey chain before
@@ -69,7 +93,8 @@ claim of durable recovery for data the product intentionally does not retain.
 - Chess: seeks, games, participants, moves, clock samples, results, and PGNs.
 - Analysis: engine versions, evaluations, lines, and annotations; results are
   returned to the requesting room or retained locally by its browser.
-- Learning: original/licensed puzzles and lessons with browser-local progress.
+- Learning: original or licensed puzzles and drills with browser-local
+  progress.
 - Competition: expiring room tournaments, entrants, pairings, and scores.
 
 ## Quality gates
@@ -79,15 +104,6 @@ claim of durable recovery for data the product intentionally does not retain.
 - Chess state is reconstructible from persisted events.
 - Tournament scores and quotas are atomic and idempotent.
 - Retried requests cannot duplicate moves, results, scores, or room actions.
-
-### Security
-
-- OWASP ASVS Level 2 is the baseline.
-- Room capabilities are high entropy, revocable, stored only as keyed hashes,
-  and never logged.
-- State-changing HTTP uses CSRF defenses. WebSockets validate session, Origin,
-  payload schema, authorization, rate, and sequence.
-- Secrets never enter images, Git, browser bundles, logs, or task documents.
 
 ### Reliability
 
@@ -105,8 +121,13 @@ claim of durable recovery for data the product intentionally does not retain.
 
 ### Accessibility and compatibility
 
-- Keyboard play, visible focus, semantic labels, reduced motion, sufficient
-  contrast, and screen-reader announcements are tested.
+- The private friends-only release makes no claim of formal Americans with
+  Disabilities Act or Web Content Accessibility Guidelines certification.
+- Keyboard play, visible focus, semantic controls, reduced motion, sufficient
+  contrast, and non-color status cues remain baseline quality requirements.
+- Full screen-reader chess-board narration is optional unless an intended
+  player needs it; generic controls inherit assistive-technology behavior from
+  the selected component library.
 - Current stable Chrome, Firefox, Safari, and Edge are supported.
 - Phone, tablet, laptop, and desktop layouts are verified with real controls.
 
@@ -116,5 +137,5 @@ The public Cloudflare hostname is configured only after:
 
 1. all task-list release checks pass;
 2. the operator supplies a named-tunnel token and controlled domain;
-3. security, chaos, expiry, and recovery-behavior tests pass;
+3. the private release review, expiry, and recovery-behavior tests pass;
 4. the operator reviews privacy and friends-only room controls.

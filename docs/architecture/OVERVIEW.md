@@ -1,19 +1,30 @@
-# Architecture Decisions
+# Architecture Overview
+
+Terminology used below: Architecture Decision Record (ADR), append-only file
+(AOF), application programming interface (API), Concise Binary Object
+Representation (CBOR), central processing unit (CPU), cross-site request
+forgery (CSRF), Hypertext Transfer Protocol (HTTP), Hypertext Transfer Protocol
+Secure (HTTPS), Interactive Connectivity Establishment (ICE), identifier (ID),
+Network Address Translation (NAT), Efficiently Updatable Neural Network (NNUE),
+OpenID Connect (OIDC), peer-to-peer (P2P), personal computer (PC), Principal
+Variation Search (PVS), Traversal Using Relays around Network Address
+Translation (TURN), Web Authentication (WebAuthn), Web Real-Time Communication
+(WebRTC), and user interface (UI). BLAKE3 is a proper algorithm name.
 
 This file contains active decisions only. Detailed contracts:
 
-- [System design](docs/architecture/SYSTEM_DESIGN.md)
-- [Minimal game-state protocol](docs/architecture/MINIMAL_GAME_STATE_PROTOCOL.md)
-- [Data platform and scale path](docs/architecture/DATA_PLATFORM.md)
-- [Self-hosted database options](docs/architecture/SELF_HOSTED_DATABASES.md)
-- [Backend language selection](docs/architecture/BACKEND_LANGUAGE.md)
-- [Docker, Traefik, and Cloudflare deployment](docs/architecture/DEPLOYMENT.md)
-- [Privacy and room identity](docs/architecture/PRIVACY_AND_IDENTITY.md)
-- [Low-data authentication research](docs/architecture/LOW_DATA_AUTHENTICATION.md)
-- [Peer-to-peer second-phase plan](docs/architecture/PEER_TO_PEER.md)
-- [Operator decisions](docs/architecture/OPERATOR_DECISIONS.md)
-- [Telemetry and retention](docs/architecture/TELEMETRY_AND_RETENTION.md)
-- [XMage identity research](docs/research/XMAGE_IDENTITY.md)
+- [System design](SYSTEM_DESIGN.md)
+- [Minimal game-state protocol](MINIMAL_GAME_STATE_PROTOCOL.md)
+- [Data platform and scale path](DATA_PLATFORM.md)
+- [Future database scale options](../future/DATABASE_SCALE_OPTIONS.md)
+- [Docker Compose development, K3s production, and Cloudflare deployment](DEPLOYMENT.md)
+- [Privacy and room identity](PRIVACY_AND_IDENTITY.md)
+- [Authentication options research](../research/AUTHENTICATION_OPTIONS.md)
+- [Future peer-to-peer transport](../future/PEER_TO_PEER_TRANSPORT.md)
+- [Telemetry and retention](TELEMETRY_AND_RETENTION.md)
+- [Existing chess test ecosystem](../research/CHESS_TEST_ECOSYSTEM.md)
+- [Private tournament contract](../product/TOURNAMENTS.md)
+- [Pseudonymous identity research](../research/PSEUDONYMOUS_IDENTITY_RESEARCH.md)
 
 ## ADR-001: Friends-only product boundary
 
@@ -24,7 +35,7 @@ tracking.
 
 Free-text social features are excluded; room communication uses fixed
 reactions. Host controls and capability revocation replace community-scale
-moderation. Premium-equivalent chess, engine, review, learning, puzzle, and
+moderation. Premium-equivalent chess, engine, review, puzzle, drill, and
 private tournament capabilities remain in scope, with progress/history stored
 locally unless the user later authorizes persistent identity.
 
@@ -56,8 +67,9 @@ capabilities, idempotency records, presence, rate buckets, private tournaments,
 and bounded analysis cache. One atomic Valkey function validates and changes
 one game partition.
 
-The initial deployment contains no SQL database. Browser IndexedDB stores
-opt-in local PGNs, analysis, puzzle schedules, lesson progress, and preferences.
+The initial deployment contains no Structured Query Language database. Browser
+Indexed Database storage holds opt-in local Portable Game Notation records,
+analysis, puzzle schedules, drill progress, and preferences.
 Stockfish needs no database.
 
 ## ADR-005: Scale is designed but not installed prematurely
@@ -69,14 +81,33 @@ on real failure domains, to Valkey Cluster only at measured capacity limits.
 ScyllaDB is the leading future Dynamo-style store only if durable multi-host
 archives or recovery become approved requirements. ClickHouse is allowed only
 for privacy-reviewed aggregate operational analytics at proven volume. Neither
-is in the initial Compose stack.
+is in the initial deployment.
 
-## ADR-006: Backend language is selected by evidence
+## ADR-006: Go backend
 
-The browser uses TypeScript. Rust and Go implement the same production-shaped
-room/WebSocket/Valkey/reconnect spike. Correctness, resource measurements,
-operational behavior, dependency surface, and maintenance cost select the
-backend. Rust is the leading candidate, not a predetermined result.
+The browser uses TypeScript and the backend uses Go. Readability, maintained
+library coverage, testing, debugging, and single-computer deployment are
+weighted above raw speed. Ten concurrent friends is the acceptance load; large
+synthetic capacity is not a selection gate. The initial Go vertical slice is
+developed on its own ticket branch and enters `dev` only through an approved
+GitHub pull request. Repository rulesets must block direct and force pushes to
+`dev` and `release` before implementation begins. Rust is deferred unless a future measured constraint
+justifies its added review cost.
+
+Maintained libraries provide chess rules/notation, WebSockets, Valkey access,
+deterministic CBOR, hashing, metrics, and testing infrastructure. KnightOwl
+writes domain policy and adapters, not substitutes for established libraries.
+
+No production code is written until the author has searched for maintained
+libraries that solve the problem. The decision record names the candidates,
+licenses, maintenance and security signals, fit gaps, and the reason for
+adopting a library or writing the smallest necessary custom adapter. “Small
+enough to write ourselves” is not sufficient justification.
+
+The browser follows the same rule. KnightOwl composes an established chess
+board, user-interface primitives, charts, validation, and testing libraries. It
+does not invent a display protocol, component framework, drag-and-drop system,
+dialog, menu, tooltip, chart renderer, or virtual list.
 
 ## ADR-007: Server deployment precedes P2P
 
@@ -88,26 +119,29 @@ authority-transfer, reconnect, and spectator tests.
 P2P is never required to play because some networks require an external TURN
 relay and direct ICE can expose peer addresses.
 
-## ADR-008: Traefik balances local containers
+## ADR-008: Docker Compose development and K3s production
 
-Docker Compose runs the single-PC deployment. Cloudflared connects only to
-Traefik, which discovers explicitly labelled app replicas and performs
-readiness-aware HTTP/WebSocket balancing. A restricted Docker API proxy avoids
-a direct socket mount. The dashboard and internal services are not publicly
-exposed.
+Docker Compose runs local development. Its optional cloudflared profile exposes
+only the invite guest surface; room creation and administration remain on
+loopback port `8787`. Port `8080` is not used.
 
-An optional development binding uses loopback port `8787`; port `8080` is not
-used.
+Production runs on a self-hosted, single-node K3s Kubernetes distribution.
+K3s supplies Traefik for ingress and service routing. Flux, a controller that
+keeps Kubernetes synchronized with reviewed Git state, watches `release`.
+GitHub sends an authenticated push event to Flux after a `release` merge, with
+polling as recovery for missed events.
 
-## ADR-009: Same-origin security
+Argo Rollouts, an established Kubernetes progressive-delivery controller,
+performs blue-green application deployment. It starts the new version behind a
+private preview Service, runs readiness and smoke analysis, and switches the
+active Service only after success. The old version remains available for the
+bounded rollback window. A single PC is not claimed to be highly available.
 
-Web, HTTP API, and WebSocket share one HTTPS origin. HTTP mutations use
-SameSite/HttpOnly/Secure room-session cookies plus CSRF protection. WebSocket
-upgrades validate exact Origin, cookie, protocol version, message schema,
-authorization, size, rate, sequence, and idempotency.
-
-Secrets never enter Git, images, browser bundles, URLs after capability claim,
-logs, metrics, traces, or task documents.
+KnightOwl's readable Kubernetes resources use Kustomize, the configuration
+composition tool built into `kubectl`. Helm, Kubernetes's package manager, is
+used only when an established third-party component officially distributes and
+supports a Helm package. KnightOwl does not create a custom Helm chart without
+a demonstrated packaging need.
 
 ## ADR-010: Server clocks and explicit failure
 
@@ -123,7 +157,8 @@ reported honestly rather than reconstructed from conflicting clients.
 
 Pinned Stockfish/NNUE workers run outside the app with CPU, memory, time,
 concurrency, and queue limits. Returned analysis includes engine/network
-identity, settings, score, nodes/depth/time, and MultiPV lines.
+identity, settings, score, nodes/depth/time, and multiple principal variation
+(MultiPV) lines.
 
 An educational bounded minimax/alpha-beta visualization is separate and is
 never presented as Stockfish's internal NNUE/PVS search. Coach prose must be
@@ -131,14 +166,14 @@ grounded in legal variations or deterministic chess features.
 
 ## ADR-012: Original or licensed content only
 
-KnightShift copies no Chess.com brand, source, UI assets, lesson text, puzzle
-collection, labels, rating data, or proprietary explanations. Lessons are
-original. Puzzles/opening data have recorded redistribution provenance.
+KnightOwl uses original or appropriately licensed brand, source, interface
+assets, puzzles, opening data, labels, rating data, explanations, and visual
+assets with recorded redistribution provenance.
 Stockfish license/source obligations are included with distributions.
 
 ## ADR-013: Vertical, test-gated delivery
 
-Work follows `TASKS.md` in order. Each feature includes domain behavior,
+Work follows `docs/ai/delivery/ROADMAP.md` in order. Each feature includes domain behavior,
 transport, UI, authorization, accessibility, telemetry, failure behavior,
 tests, and documentation. A decorative or backend-only implementation does not
 complete a feature; unavailable functionality is absent from the UI.

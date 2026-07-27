@@ -1,5 +1,10 @@
 # Telemetry and Retention
 
+Terminology used below: continuous integration (CI), central processing unit
+(CPU), Forsyth–Edwards Notation (FEN), Hypertext Transfer Protocol (HTTP),
+identifier (ID), Internet Protocol (IP), Portable Game Notation (PGN), and
+uniform resource locator (URL). “US” means United States.
+
 ## Goal
 
 Collect enough operational evidence to run, secure, debug, and scale the
@@ -50,7 +55,7 @@ Disabled by default and not required for operation:
 - move/position sequences;
 - persistent browser/device pseudonyms;
 - cross-game cohorts;
-- lesson/puzzle behavior;
+- drill/puzzle behavior;
 - detailed feature funnels;
 - long-lived address or fingerprint data.
 
@@ -121,4 +126,3 @@ Primary guidance:
   <https://www.ftc.gov/business-guidance/resources/protecting-personal-information-guide-business>
 - California Attorney General:
   <https://oag.ca.gov/privacy/ccpa>
-

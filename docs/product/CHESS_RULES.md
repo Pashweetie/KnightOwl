@@ -1,11 +1,16 @@
-# KnightShift Chess Product Rules
+# KnightOwl Chess Product Rules
+
+Terminology used below: Forsyth–Edwards Notation (FEN), identifier (ID),
+Portable Game Notation (PGN), Standard Algebraic Notation (SAN), Universal
+Chess Interface (UCI), user interface (UI), and Coordinated Universal Time
+(UTC).
 
 This document fixes the standard-chess behavior before game implementation.
 Variant rules receive separate documents and test suites.
 
 ## 1. Position rules
 
-KnightShift standard chess implements:
+KnightOwl standard chess implements:
 
 - the normal initial position;
 - legal piece movement and capture;
@@ -49,17 +54,22 @@ implementation.
 
 ### Casual only
 
-All initial human games are casual and unrated. KnightShift enforces rules and
+All initial human games are casual and unrated. KnightOwl enforces rules and
 clock correctness but has no cheating policy. Coach/engine tools are visibly
 separate from active human game controls to prevent accidental use, not to
 police friends.
 
 ## 3. Start and abort
 
-A live game becomes started when both players connect and White's clock begins.
-It is abortable only before both players have made a move, unless private
-tournament rules disallow abort. Repeated creation/abort may hit operational
-room-rate limits.
+A live game remains in `ready` state after both players connect. Neither clock
+runs. White's first server-accepted move atomically changes the state to
+`started`; Black's clock begins from that accepted event. White is not charged
+for time spent considering the first move.
+
+Before White's first accepted move, either player or the host may abort without
+a game result, unless private tournament rules define a start/no-show deadline.
+After that move, abort is unavailable and players use resign/draw actions.
+Repeated room creation and pre-start abort may hit operational rate limits.
 
 ## 4. Commands
 
@@ -123,7 +133,17 @@ stored separately as `abandoned`.
 ## 8. Premoves
 
 - A user may queue zero to five premoves.
-- The queue is client-visible and cancellable.
+- Premoves are enabled by default and can be disabled from a plainly labelled
+  board setting.
+- While it is the opponent's turn, selecting the user's own piece changes the
+  interaction banner to `Premove`; normal live-move and premove modes are never
+  distinguished only by color.
+- Every queued move is drawn with a distinct accessible style and numbered in
+  execution order. The move list also has a `Queued premoves` region.
+- The queue is cancellable one entry at a time and with `Clear all`; right-click
+  or equivalent may be a shortcut but is never the only method.
+- Escape cancels the newest queued move when board focus is active. Touch and
+  screen-reader controls expose the same actions.
 - After each opponent move, only the first queued entry is submitted.
 - The server tests it against the new authoritative position.
 - If legal, it is processed as a normal move with a fixed 100 ms clock charge.
@@ -131,6 +151,10 @@ stored separately as `abandoned`.
 - Promotion follows the premove promotion choice or the user's auto-queen
   setting recorded with the command.
 - A premove is never accepted before the opponent move is committed.
+- A reconnect/stale snapshot clears unconfirmed local premoves and announces
+  that they were not played; it never guesses whether to resubmit them.
+- Settings explain the fixed clock charge, queue limit, execution order, and
+  invalidation behavior in plain language beside the control.
 
 ## 9. Move interaction
 
@@ -169,7 +193,7 @@ Derived artifacts:
 - result and termination within the room lifetime.
 
 PGN export never implies that imported comments or engine lines were generated
-by KnightShift. The browser can retain an exported/local PGN after server state
+by KnightOwl. The browser can retain an exported/local PGN after server state
 expires.
 
 ## 11. Spectators and active-game separation
@@ -194,4 +218,6 @@ enforcement. Fixed reactions are a separate muteable permission.
 - duplicate, stale, reordered, and unauthorized commands;
 - disconnect before/after commit and process restart;
 - premove legality and fixed charge;
+- premove first-use guidance, visible mode/queue/order, keyboard/touch/screen
+  reader cancellation, stale reconnect clearing, and invalid dependent queues;
 - PGN round-trip and event replay equivalence.

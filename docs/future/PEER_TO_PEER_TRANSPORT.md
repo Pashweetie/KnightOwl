@@ -1,11 +1,20 @@
-# Peer-to-Peer Game Transport Evaluation
+# Future Peer-to-Peer Transport
+
+Terminology used below: carrier-grade Network Address Translation (CGNAT),
+Datagram Transport Layer Security (DTLS), Interactive Connectivity
+Establishment (ICE), Network Address Translation (NAT), peer-to-peer (P2P),
+Portable Game Notation (PGN), Stream Control Transmission Protocol (SCTP),
+Traversal Using Relays around Network Address Translation (TURN), User Datagram
+Protocol (UDP), user interface (UI), World Wide Web Consortium (W3C), and
+WebAssembly (WASM).
 
 ## Status
 
-WebRTC is planned as a second transport, not adopted as the sole multiplayer
-transport. The server-authoritative Valkey protocol is implemented, qualified,
-and released first. A later vertical spike adds WebRTC only if it preserves the
-same command, hash-chain, clock, reconnect, and fallback semantics.
+This feature is outside the initial release. WebRTC is a possible second
+transport, not the sole multiplayer transport. The server-authoritative Valkey
+protocol is implemented, qualified, and released first. A later vertical spike
+adds WebRTC only if it preserves the same command, hash-chain, clock, reconnect,
+and fallback semantics.
 
 ## Feasible hybrid
 

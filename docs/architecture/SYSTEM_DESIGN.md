@@ -1,8 +1,13 @@
 # System Design
 
+Terminology used below: append-only file (AOF), central processing unit (CPU),
+Forsyth–Edwards Notation (FEN), identifier (ID), Efficiently Updatable Neural
+Network (NNUE), personal computer (PC), Portable Game Notation (PGN), and
+Structured Query Language (SQL). BLAKE3 is a proper algorithm name.
+
 ## Design target
 
-KnightShift runs on one privately operated PC for invited friends, accepts
+KnightOwl runs on one privately operated PC for invited friends, accepts
 public traffic only through an outbound Cloudflare Tunnel, stores no accounts
 or contact information, and remains horizontally evolvable without operating a
 distributed database prematurely.
@@ -25,8 +30,9 @@ Valkey              Stockfish workers
 
 - The TypeScript browser implements presentation, local history, move previews,
   PGN import/export, and analysis views.
-- The Rust or Go app implements room capabilities, authoritative rules/clocks,
-  WebSocket protocol, game-state transitions, and worker admission control.
+- The selected backend implements room capabilities, authoritative rules and
+  clocks, WebSocket protocol, game-state transitions, and worker admission
+  control.
 - Valkey stores only expiring rooms, compact event chains, capabilities,
   idempotency records, presence, rate buckets, room tournaments, and short-lived
   analysis cache.
@@ -108,7 +114,7 @@ latency budgets and fair scheduling.
 | Valkey unavailable | Moves and room mutations fail closed; no replica invents state. |
 | Valkey restarts | AOF restores within the declared persistence boundary; clients resync or receive an explicit ended/lost state. |
 | Stockfish saturated | Human games remain responsive; bot/analysis requests queue briefly or return a real capacity error. |
-| Traefik exits | Compose restarts it; existing public connections reconnect after a brief ingress outage. |
+| Traefik exits | K3s replaces it; existing public connections reconnect after a brief ingress outage. |
 | Cloudflared exits | A replica continues if configured; otherwise local service remains healthy but unreachable publicly. |
 | Disk fills | Readiness fails before corrupting state; operator alert identifies the exact volume. |
 
@@ -126,4 +132,3 @@ latency budgets and fair scheduling.
 Stable game-partition and repository interfaces make these later stages
 possible. They do not pretend that a single PC provides independent failure
 domains.
-
