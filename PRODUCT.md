@@ -2,10 +2,11 @@
 
 ## Objective
 
-KnightShift is a self-hostable, production-quality chess platform for real
-people. It provides persistent accounts, rated and casual live chess, game
-history, computer-assisted post-game review, puzzles, original lessons,
-tournaments, social features, and moderation.
+KnightShift is a self-hostable, production-quality chess room for invited
+friends. It provides capability-link multiplayer, casual live chess, local game
+history, computer-assisted post-game review, a coaching bot, optional original
+learning content, and ephemeral room tournaments without collecting account or
+contact identity.
 
 “Feature parity” means comparable user capabilities. It does not mean copying
 Chess.com branding, source code, lesson text, puzzle collections, visual
@@ -13,25 +14,29 @@ assets, engine labels, rating data, or other proprietary material.
 
 ## Non-negotiable product rules
 
-1. Every displayed user, game, rating, statistic, message, tournament, puzzle
-   result, and progress value comes from persisted application state.
+1. Every displayed player, game, statistic, tournament, puzzle result, and
+   progress value comes from verified live state or clearly labelled local
+   browser state.
 2. Every visible control performs its labeled action. Unimplemented features
    are absent rather than disabled, faked, or represented by notifications.
-3. The server is authoritative for identity, permissions, chess rules, clocks,
-   matchmaking, results, ratings, puzzle solutions, and tournament state.
+3. The server is authoritative for room capabilities, chess rules, clocks,
+   results, puzzle solutions, and active tournament state.
 4. Client input is untrusted. WebSocket messages and HTTP requests use the same
    authorization and validation standards.
-5. Public release requires durable storage, backups, recovery testing,
-   observability, abuse controls, and a permanent named tunnel.
+5. Public ingress requires tested expiry, recovery behavior, observability,
+   resource controls, and a permanent named tunnel.
 6. Premium-equivalent features are available without an artificial paid tier.
    Operating costs and optional donations may be documented separately.
+7. KnightShift stores no login credentials, contact identity, public profile,
+   advertising identifier, or hidden durable player profile. Purpose-limited
+   operational/security telemetry follows the documented retention policy.
 
 ## Initial supported chess scope
 
 - Standard chess, with the data model ready for variants but no advertised
   variant until it has its own rules and test suite.
-- Casual and rated games.
-- Bullet, blitz, rapid, and classical time-control pools.
+- Casual invite-room games.
+- Bullet, blitz, rapid, and classical time controls.
 - Fischer increment and Bronstein delay.
 - Draw by agreement, stalemate, insufficient material, fivefold repetition,
   seventy-five-move automatic draw, claimable threefold repetition, and
@@ -43,63 +48,59 @@ assets, engine labels, rating data, or other proprietary material.
 The deployable system consists of:
 
 - A React/TypeScript web client.
-- A TypeScript HTTP and WebSocket API.
-- PostgreSQL as the durable system of record.
-- Redis for ephemeral matchmaking, presence, rate limits, and job coordination.
-- Background workers for mail, analysis, rating settlement, and maintenance.
+- A Rust or Go HTTP and WebSocket API selected through the documented spike.
+- Valkey for expiring room state, presence, rate limits, and job coordination.
+- Background workers for analysis and maintenance.
 - Stockfish workers isolated from the API process.
+- Traefik for local health-aware load balancing across app containers.
 - Cloudflare Tunnel as outbound-only ingress.
 - Docker Compose for a single-machine installation, with clean seams for later
   multi-host deployment.
 
-The API remains stateless except for active socket connections. Durable game
-events are written before acknowledgement. Redis loss may disrupt presence or
-queues but must not lose accounts, accepted moves, games, ratings, or progress.
+The API remains stateless except for active socket connections. Accepted game
+events are atomically appended to an expiring Valkey chain before
+acknowledgement. Valkey loss fails active games explicitly; there is no hidden
+claim of durable recovery for data the product intentionally does not retain.
 
 ## Core data domains
 
-- Identity: users, credentials, sessions, verification tokens, roles, bans,
-  privacy settings, and audit events.
+- Rooms: expiring capabilities, room-local labels, seats, settings, and
+  readiness.
 - Chess: seeks, games, participants, moves, clock samples, results, and PGNs.
-- Skill: rating pools, rating periods, rating transactions, and leaderboards.
-- Analysis: jobs, engine versions, evaluations, lines, annotations, and quotas.
-- Learning: puzzles, solutions, attempts, schedules, lessons, checkpoints, and
-  progress.
-- Competition: tournaments, entrants, rounds, pairings, scores, and tie-breaks.
-- Social/moderation: relationships, challenges, clubs, messages, reports,
-  evidence, actions, and appeals.
+- Analysis: engine versions, evaluations, lines, and annotations; results are
+  returned to the requesting room or retained locally by its browser.
+- Learning: original/licensed puzzles and lessons with browser-local progress.
+- Competition: expiring room tournaments, entrants, pairings, and scores.
 
 ## Quality gates
 
 ### Correctness
 
 - Chess state is reconstructible from persisted events.
-- All balance-like mutations—ratings, tournament scores, quotas—are
-  transactional and idempotent.
-- Retried requests cannot duplicate moves, results, rating changes, or rewards.
+- Tournament scores and quotas are atomic and idempotent.
+- Retried requests cannot duplicate moves, results, scores, or room actions.
 
 ### Security
 
 - OWASP ASVS Level 2 is the baseline.
-- Passwords use Argon2id; sessions are opaque, rotating, revocable, and stored
-  hashed; cookies are Secure, HttpOnly, and SameSite.
+- Room capabilities are high entropy, revocable, stored only as keyed hashes,
+  and never logged.
 - State-changing HTTP uses CSRF defenses. WebSockets validate session, Origin,
   payload schema, authorization, rate, and sequence.
 - Secrets never enter images, Git, browser bundles, logs, or task documents.
 
 ### Reliability
 
-- A process restart during a game preserves all acknowledged moves and restores
-  authoritative clocks within the documented tolerance.
-- PostgreSQL backups are encrypted, retained, and restored in a recorded test.
+- An app-process restart preserves acknowledged moves while Valkey is healthy
+  and restores authoritative clocks within the documented tolerance.
+- Valkey persistence policy and its explicit data-loss boundary are tested.
 - Readiness fails when required dependencies cannot safely serve traffic.
 
 ### Performance
 
 - On the target PC, 95% of accepted live moves are broadcast to both players
   within 250 ms excluding client network latency.
-- Matchmaking does not pair the same account with itself and does not assign one
-  seek to multiple games under concurrency.
+- A room seat cannot be claimed twice under concurrency.
 - Engine work cannot starve live-game traffic.
 
 ### Accessibility and compatibility
@@ -115,6 +116,5 @@ The public Cloudflare hostname is configured only after:
 
 1. all task-list release checks pass;
 2. the operator supplies a named-tunnel token and controlled domain;
-3. backup/restore and security tests pass;
-4. the operator reviews privacy, moderation, and acceptable-use settings.
-
+3. security, chaos, expiry, and recovery-behavior tests pass;
+4. the operator reviews privacy and friends-only room controls.

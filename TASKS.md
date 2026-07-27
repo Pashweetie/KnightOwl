@@ -1,93 +1,140 @@
 # KnightShift Delivery Plan
 
-This checklist is the release gate. A box may be checked only when its automated
-tests pass and the behavior has been exercised through the real application.
-There will be no placeholder controls, invented statistics, simulated users, or
-panels that merely display a toast.
+This is an ordered release gate. Work proceeds one section at a time. A box is
+checked only after its real behavior and automated tests pass. There are no
+placeholder controls, invented users/statistics, or fake service integrations.
 
-## 0. Product contract
+## 0. Remove the rejected prototype
 
-- [x] Reject and remove the prototype.
-- [x] Remove its public tunnel, containers, image, and repository.
-- [x] Define the supported product and explicit non-goals.
-- [x] Define the architecture and persistence model.
-- [x] Define acceptance criteria for every subsystem.
+- [x] Remove its tunnel, containers, image, and remote repository.
+- [x] Create a clean `knightshift` folder and repository.
 
-## 1. Foundation and authentication
+## 1. Resolve the product and architecture
 
-- [ ] Create the TypeScript monorepo and locked dependency graph.
-- [ ] Create PostgreSQL migrations and a disposable test database.
-- [ ] Implement registration with normalized, unique email and username.
-- [ ] Hash passwords with Argon2id and a server-side pepper.
-- [ ] Implement login, logout, rotating sessions, and session revocation.
-- [ ] Implement verified email changes and password reset tokens.
-- [ ] Add CSRF protection, secure cookies, rate limits, and audit events.
-- [ ] Add integration tests for success, failure, expiry, replay, and lockout.
-- [ ] Pass the authentication threat-model checklist.
+- [x] Define friends-only scope and explicit exclusions.
+- [x] Define standard-chess rules and clock semantics.
+- [x] Research the competitor capability baseline without copying proprietary
+  content or branding.
+- [x] Define the coaching bot and truthful minimax/Stockfish presentation.
+- [x] Define anonymous capability rooms and the minimal authoritative state
+  protocol.
+- [x] Research anonymous/low-data authentication and define capability,
+  passkey, and pairwise-OIDC tradeoffs.
+- [x] Evaluate peer-to-peer WebRTC transport, NAT/TURN requirements, privacy,
+  authority, reconnect, and multi-party limitations.
+- [x] Inspect XMage's source-level anonymous/authenticated user models and
+  document which low-friction ideas are safe to adopt.
+- [x] Select Valkey for expiring live state and exclude SQL from the initial
+  release.
+- [x] Define the scale path: Valkey HA/Cluster first, ScyllaDB only if durable
+  multi-host state becomes a measured requirement, and ClickHouse only for
+  privacy-safe aggregate observability at proven volume.
+- [x] Select Traefik for local Docker load balancing behind cloudflared.
+- [x] Define friends-only room controls and eliminate public social moderation.
+- [x] Define purpose-limited aggregate/diagnostic telemetry, forbidden tracking,
+  retention, runtime disclosure, and the legal-risk boundary.
+- [x] Define repository quality, security, chaos, and operational gates.
+- [ ] Complete Rust and Go backend spikes and record the measured selection.
+- [ ] Review the final architecture documents for contradictions.
 
-## 2. Live chess
+## 2. Establish the repository and delivery system
 
-- [ ] Implement authoritative chess rules and immutable game events.
-- [ ] Implement seek creation for bullet, blitz, rapid, and classical pools.
-- [ ] Implement atomic matchmaking with rating and latency expansion.
-- [ ] Implement WebSocket authentication and origin validation.
-- [ ] Implement authoritative monotonic clocks with increment and delay.
-- [ ] Implement move, resign, draw offer/accept/decline, and abort.
-- [ ] Implement disconnect grace, reconnect, multi-tab ownership, and recovery.
-- [ ] Persist PGN, FEN snapshots, result, termination, and clock history.
-- [ ] Add tests for every legal ending and illegal client action.
-- [ ] Pass two-browser, restart-recovery, and concurrency tests.
+- [ ] Create the selected backend, TypeScript web client, protocol package,
+  Stockfish worker, and end-to-end test workspace.
+- [ ] Pin all toolchains, dependencies, container bases, and image digests.
+- [ ] Add format, lint, dependency-boundary, unused-code, unit, integration,
+  fuzz/property, accessibility, and end-to-end CI gates.
+- [ ] Build hardened rootless images with SBOMs and provenance.
+- [ ] Add Valkey, app replicas, Traefik, Docker API proxy, Stockfish worker, and
+  cloudflared Compose profiles.
+- [ ] Implement liveness, readiness, startup, drain, metrics, and private
+  operator diagnostics.
+- [ ] Verify that only loopback port `8787` is optional locally and that no
+  internal service or dashboard is exposed.
+- [ ] Document install, upgrade, scale, rollback, clean removal, and secret
+  rotation.
 
-## 3. Ratings, profiles, and history
+## 3. Implement the chess core
 
-- [ ] Implement separate Glicko-2 pools per time control and variant.
-- [ ] Make rating updates transactional and idempotent.
-- [ ] Implement public profiles with real statistics only.
-- [ ] Implement private account and privacy preferences.
-- [ ] Implement searchable, paginated game history and PGN export.
-- [ ] Add rating-calculation fixtures and transaction-race tests.
+- [ ] Implement immutable standard-chess position and move types.
+- [ ] Implement every legal move and ending in the rules contract.
+- [ ] Implement Fischer increment, Bronstein delay, pause, reconnect, and
+  server-authoritative timeout resolution.
+- [ ] Implement canonical protocol encoding and BLAKE3 event chains.
+- [ ] Add perft fixtures, published rule positions, property tests, differential
+  tests, fuzzing, and deterministic clock tests.
 
-## 4. Analysis and review
+## 4. Implement private multiplayer rooms
 
-- [ ] Run a pinned Stockfish build in isolated workers with resource limits.
-- [ ] Queue analysis jobs and persist progress and engine provenance.
-- [ ] Produce evaluations, best lines, accuracy, and move classifications.
-- [ ] Provide an interactive analysis board with variations and annotations.
-- [ ] Support user PGN import/export.
-- [ ] Add deterministic engine fixtures, cancellation, and overload tests.
+- [ ] Create unlisted rooms and separate hashed host/player/spectator
+  capabilities.
+- [ ] Implement one-use invites, color assignment, readiness, settings, and
+  capability revocation.
+- [ ] Implement move, resign, draw, abort, rematch, spectate, reconnect, and PGN
+  export.
+- [ ] Implement atomic Valkey version checks, idempotency, snapshots, event TTL,
+  and explicit failure behavior.
+- [ ] Implement fixed reactions, local mute, and host disable controls.
+- [ ] Add two-browser, simultaneous-command, multi-replica, restart, expiry, and
+  tampered-client tests.
 
-## 5. Puzzles and learning
+## 5. Implement the complete chess interface
 
-- [ ] Store licensed/original puzzle positions with verified solutions.
-- [ ] Implement server-validated puzzle attempts and spaced repetition.
-- [ ] Implement puzzle rating and user puzzle rating updates.
-- [ ] Author original lessons with interactive checkpoints.
-- [ ] Persist lesson progress, review queue, streaks, and mastery.
-- [ ] Add solution-validation and progress-integrity tests.
+- [ ] Build responsive mouse, touch, and keyboard board interaction.
+- [ ] Add legal-move cues, promotion, orientation, clocks, move list, captured
+  material, status, settings, and reconnect UI.
+- [ ] Add screen-reader board navigation and announcements, visible focus,
+  reduced motion, and contrast compliance.
+- [ ] Implement IndexedDB game history, import/export, and clear-local-data.
+- [ ] Pass real Chrome, Firefox, Safari, and Edge desktop/mobile tests.
 
-## 6. Competition and community
+## 6. Implement bot play and coaching
 
-- [ ] Implement arena and Swiss tournament state machines.
-- [ ] Implement registration, pairing, scoring, tie-breaks, and withdrawals.
-- [ ] Implement follows, blocks, challenges, clubs, and direct messages.
-- [ ] Implement reports, moderation queues, sanctions, and appeals.
-- [ ] Add permission, abuse-rate-limit, and tournament-invariant tests.
+- [ ] Package a pinned Stockfish/NNUE build in a resource-isolated worker.
+- [ ] Implement calibrated bot strength profiles without false rating claims.
+- [ ] Implement MultiPV evaluations, principal variations, engine provenance,
+  and resource limits.
+- [ ] Implement a separate bounded educational minimax/alpha-beta tree labelled
+  as an explanation rather than Stockfish internals.
+- [ ] Ground every coach claim in a legal line, evaluation, motif detector, or
+  endgame fact.
+- [ ] Add deterministic fixtures, calibration, overload, cancellation, and
+  explanation-consistency tests.
 
-## 7. Operations and release
+## 7. Implement review and learning
 
-- [ ] Produce rootless Docker images with pinned base digests.
-- [ ] Add PostgreSQL, Redis, worker, backup, and Cloudflare services.
-- [ ] Implement health, readiness, metrics, structured logs, and alerts.
-- [ ] Implement encrypted backups and successfully restore one.
-- [ ] Run dependency, secret, container, and dynamic security scans.
-- [ ] Run load tests for matchmaking, games, WebSockets, and analysis queues.
-- [ ] Verify accessibility, responsive behavior, and browser compatibility.
-- [ ] Complete data export, account deletion, privacy, and terms workflows.
-- [ ] Perform a clean-machine installation from documented instructions.
-- [ ] Publish through a named Cloudflare Tunnel and verify the public system.
+- [ ] Implement local PGN analysis and interactive variations/annotations.
+- [ ] Implement evidence-based move classifications and accuracy with documented
+  formulas.
+- [ ] Author original drills and lessons with local-only progress.
+- [ ] Add licensed/original puzzles, verified solutions, local spaced
+  repetition, and optional Rush/survival modes.
+- [ ] Add engine, content-provenance, solution, and local-persistence tests.
+
+## 8. Implement ephemeral room competition
+
+- [ ] Implement private arena and Swiss room state machines.
+- [ ] Implement entrants, pairings, scores, tie-breaks, withdrawals, reconnect,
+  and PGN export without durable player identity.
+- [ ] Add invariant, concurrency, expiry, and recovery tests.
+
+## 9. Qualify and publish
+
+- [ ] Run static analysis, dependency audit, secret scan, SBOM scan, Trivy,
+  Nuclei, and authenticated OWASP ZAP against the release images.
+- [ ] Run protocol fuzzing and authorization/capability penetration tests.
+- [ ] Run Toxiproxy and container-kill chaos scenarios.
+- [ ] Load-test room creation, WebSockets, moves, spectators, reconnects, proxy
+  balancing, and Stockfish saturation on the target PC.
+- [ ] Scale app replicas up/down during games and verify health-aware routing and
+  graceful drain.
+- [ ] Verify TTL deletion, log/metric privacy, disk exhaustion behavior, Valkey
+  persistence boundaries, and clean-machine recovery.
+- [ ] Perform a clean-machine installation from the operator documentation.
+- [ ] Configure the operator-supplied named Cloudflare Tunnel and hostname.
+- [ ] Run the public two-player smoke suite and publish only if all gates pass.
 
 ## Release rule
 
-KnightShift is not called complete and is not publicly published until every
-box above is checked. Development previews remain local or access-restricted.
-
+KnightShift is not called complete or publicly published until every box above
+is checked. Development previews remain local or access-restricted.
