@@ -88,11 +88,12 @@ is in the initial deployment.
 The browser uses TypeScript and the backend uses Go. Readability, maintained
 library coverage, testing, debugging, and single-computer deployment are
 weighted above raw speed. Ten concurrent friends is the acceptance load; large
-synthetic capacity is not a selection gate. The initial Go vertical slice is
-developed on its own ticket branch and enters `dev` only through an approved
+synthetic capacity is not a selection gate. Go server behavior is delivered as
+small production increments rather than a disposable proof of concept. Each
+increment has its own ticket branch and enters `dev` only through an approved
 GitHub pull request. Repository rulesets must block direct and force pushes to
-`dev` and `release` before implementation begins. Rust is deferred unless a future measured constraint
-justifies its added review cost.
+`dev` and `release` before implementation begins. Rust is deferred unless a
+future measured constraint justifies its added review cost.
 
 Maintained libraries provide chess rules/notation, WebSockets, Valkey access,
 deterministic CBOR, hashing, metrics, and testing infrastructure. KnightOwl

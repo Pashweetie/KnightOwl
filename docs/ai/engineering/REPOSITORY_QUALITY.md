@@ -120,8 +120,8 @@ property/fuzz tests.
 - Dependencies require a stated purpose, maintained upstream, acceptable
   license, and security review.
 - Image and lockfile upgrades are isolated where practical.
-- Merged commits remain buildable; temporary spike code is deleted after the
-  backend decision.
+- Merged commits remain buildable; temporary executable research is deleted
+  after its decision.
 - Exceptions require their own reviewed policy change before the affected pull
   request. Chess, privacy, capability, state-consistency, secret scanning, and
   branch-protection checks cannot be waived.

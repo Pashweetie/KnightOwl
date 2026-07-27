@@ -4,7 +4,7 @@ This is the entry point for implementation. It ties the product, architecture,
 research, delivery plan, and verification documents together. No production
 implementation begins until the architecture baseline has recorded approval.
 
-Executable proofs and production work both require an authorized ticket.
+Executable research and production work both require an authorized ticket.
 Authorization is recorded on the applicable issue and pull request.
 
 ## Source-of-truth order
@@ -35,8 +35,8 @@ exists.
 | --- | --- | --- |
 | Any change | `docs/architecture/OVERVIEW.md`, `docs/ai/engineering/REPOSITORY_QUALITY.md`, `docs/ai/engineering/DOCUMENTATION_STYLE.md` | Relevant research document |
 | Ticket, branch, review, or merge | `docs/ai/engineering/TICKET_BRANCH_WORKFLOW.md` | The ticket and GitHub pull request |
-| Executable proof | `docs/ai/tickets/README.md` and the active GitHub issue | The proof-specific research and specification |
-| Dependency or custom-code decision | `docs/ai/engineering/DEPENDENCY_REGISTER.md`, `docs/ai/engineering/REPOSITORY_QUALITY.md` | Relevant upstream source and executable proof |
+| Executable research | `docs/ai/tickets/README.md` and the active GitHub issue | The research-specific specification |
+| Dependency or custom-code decision | `docs/ai/engineering/DEPENDENCY_REGISTER.md`, `docs/ai/engineering/REPOSITORY_QUALITY.md` | Relevant upstream source and focused conformance evidence |
 | Chess gameplay, clocks, premoves | `docs/product/CHESS_RULES.md`, `docs/architecture/MINIMAL_GAME_STATE_PROTOCOL.md` | `docs/research/CHESS_TEST_ECOSYSTEM.md` |
 | Browser interface | `docs/product/FEATURE_MATRIX.md`, `docs/product/CHESS_RULES.md` | `docs/research/FRONTEND_LIBRARY_STRATEGY.md` |
 | Product scope changes | `docs/product/OVERVIEW.md`, `docs/product/FEATURE_MATRIX.md` | Current official product sources listed in the matrix |
@@ -77,7 +77,7 @@ Every implementation unit follows this sequence:
 
 - The release feature set and exclusions have recorded approval.
 - The server architecture and low-data identity model have recorded approval.
-- The Go capacity spike passes or the measured language decision is revisited.
+- The Go server implementation sequence has recorded approval.
 - Frontend and backend dependency decisions include license review.
 - The Cloudflare Tunnel hostname remains unpublished until the publication gate
   in `docs/product/OVERVIEW.md` passes.

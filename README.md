@@ -5,7 +5,7 @@ It combines private real-time multiplayer, teaching-oriented Bot Mode, Swiss
 tournaments, game review, optional puzzles, and browser-local customization.
 
 > **Current status:** architecture review. This repository contains
-> specifications and proof tickets; it does not yet contain a runnable
+> specifications and implementation-ticket definitions; it does not yet contain a runnable
 > KnightOwl application.
 
 ## Developer starting point
@@ -62,14 +62,16 @@ for the complete change-review process.
 | `docs/research/` | Human-readable evidence and comparisons |
 | `docs/future/` | Evaluated features outside the initial release |
 | `docs/ai/` | Prescriptive agent workflow, quality gates, roadmap, and tickets |
-| `spikes/` | Executable proofs created by approved tickets |
+| `spikes/` | Temporary executable research created only when an approved decision requires it |
 
 `AGENTS.md` contains repository instructions for automated coding agents. Human
 contributors do not need it as their primary onboarding document.
 
 ## First planned change
 
-The architecture baseline is under pull-request review. The first executable
-work item is the ticketed Go vertical-slice proof; it validates readability,
-library boundaries, real Valkey and Stockfish integration, testing, debugging,
-and Docker operation before production structure is accepted.
+The architecture baseline is approved. Before implementation begins, the
+repository and continuous-integration foundations are delivered through their
+own reviewed tickets. Go server behavior then arrives as the ordered, usable
+increments in the
+[Go server implementation plan](docs/ai/delivery/GO_SERVER_IMPLEMENTATION.md),
+not as a disposable proof of concept.
