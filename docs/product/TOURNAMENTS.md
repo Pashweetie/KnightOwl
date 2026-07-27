@@ -61,26 +61,6 @@ Because participants are anonymous and unrated, initial ordering uses a host
 seed, randomized order committed before round one, or opt-in room-local seed
 numbers—not invented global ratings.
 
-## Arena
-
-Arena is an online product format, not a FIDE pairing system. Its rules must be
-published in the room before registration:
-
-- start/end time and whether games already started may finish;
-- win/draw/loss points;
-- streak/bonus definition, if enabled;
-- rematch avoidance window;
-- color-balancing priority;
-- pairing wait/availability;
-- withdrawal and reconnect;
-- tie-break order;
-- whether optional berserk/time-odds exists.
-
-The matcher pairs only available entrants, never pairs a participant with
-themself, avoids immediate repeats where possible, and atomically reserves both
-entrants before creating one game. Scoring consumes one immutable game result
-once.
-
 ## Host operations
 
 Before start, the host may remove an entrant or cancel. During play, the host
@@ -108,8 +88,6 @@ visible tournament ruling.
 - Upstream bbpPairings examples and current FIDE conformance expectations.
 - Randomized Swiss tournaments across even/odd fields, withdrawals, byes,
   forfeits, late entries, score ties, and color histories.
-- Arena double-reservation, repeat avoidance, result retry, simultaneous finish,
-  tournament end while games run, and reconnect.
 - Duplicate/stale host and participant commands.
 - Kill/restart app replicas during registration, pairing, settlement, and
   completion.
