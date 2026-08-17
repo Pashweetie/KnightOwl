@@ -15,6 +15,9 @@ library-first evidence, applicable automated tests, one squashed commit, and a
 PR into `dev`. Work follows the roadmap phase containing the behavior; this
 plan does not authorize skipping ahead.
 
+`server-001` is the first executable application ticket in roadmap phase 2,
+after the ticket-branch workflow prerequisite.
+
 ## Ordered increments
 
 ### `server-001`: Service foundation

@@ -14,6 +14,8 @@ selected ticket.
 - Open a GitHub pull request into `dev`; never push directly to `dev` or
   `release`.
 - Present exactly one squashed commit relative to `dev`.
+- After every correction to a ticket branch, create and push a new revision
+  before reporting the correction back to the repository owner.
 - Do not report ticket work as complete until its branch is pushed and its
   GitHub pull request is open. A comparison URL is not a pull request.
 - Do not merge until the designated reviewer approves that pull request.

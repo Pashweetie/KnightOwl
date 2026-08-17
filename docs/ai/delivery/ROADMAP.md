@@ -47,7 +47,7 @@ placeholder controls, invented users/statistics, or fake service integrations.
 - [x] Select GPL-3-or-later licensing.
 - [x] Select scheduled-round private Swiss as the required tournament format;
   exclude continuous arena tournaments from the initial release.
-- [ ] Approve the ordered Go server implementation tickets in
+- [x] Approve the ordered Go server implementation tickets in
   `docs/ai/delivery/GO_SERVER_IMPLEMENTATION.md`; do not create a disposable
   proof-of-concept server.
 - [ ] Review the final architecture documents for contradictions.
@@ -59,6 +59,8 @@ placeholder controls, invented users/statistics, or fake service integrations.
 - [ ] Configure the ticket-branch and pull-request workflow specified in
   `docs/ai/engineering/TICKET_BRANCH_WORKFLOW.md`, including protected `dev` and
   `release` branches and required continuous-integration checks.
+- [ ] Deliver `server-001`, the Go service foundation, as the first executable
+  application ticket after the branch-workflow prerequisite.
 - [ ] Deliver the deployment system as separate reviewed tickets for Docker
   Compose development, K3s production, image supply chain, read-only preflight,
   digest-pinned promotion, authenticated Flux reconciliation, Argo Rollouts
