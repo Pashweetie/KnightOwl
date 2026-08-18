@@ -15,9 +15,19 @@ tournaments, game review, optional puzzles, and browser-local customization.
    [implementation catalog](docs/ai/tickets/README.md).
 3. Follow the [change workflow](docs/ai/engineering/TICKET_BRANCH_WORKFLOW.md).
 
-There are no build or run commands yet because production implementation has
-not started. The first executable ticket will introduce and document the
-toolchain.
+The Go service foundation is the first executable application ticket. Run it
+locally with `go run ./apps/server/cmd/knightowl`; it reads
+`config/development.json` and listens on
+`127.0.0.1:8787` by default. Its liveness, startup, readiness, and drain
+endpoints are `/health/live`, `/health/startup`, `/health/ready`, and
+`/admin/drain`. Pass `-config path/to/file.json` to use a different JSON
+configuration file.
+
+The server is a program that waits for requests. “Draining” is the standard
+infrastructure term for a graceful shutdown: the server first tells the network
+“do not send me anything new,” then gives requests that already arrived a few
+seconds to finish, and finally exits. This matters during a restart or update
+because it avoids cutting somebody off mid-action.
 
 ## Selected technical direction
 
